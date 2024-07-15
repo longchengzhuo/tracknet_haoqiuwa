@@ -3,7 +3,7 @@ import argparse
 import subprocess
 import os
 import cv2
-
+import numpy as np
 
 def time_to_start(end_time):
     """
@@ -53,11 +53,11 @@ def time_to_end(start_time):
             # 输出当前行后30行的第一列的数值
             end_time = df.iloc[i + 30, 0]
             print(f"第 {num_clip} 个clip的结束帧是{end_time}")
-            # 0代表到此行回合结束
-            df.iloc[end_time, 4] = 0
             exist_end = 1
             # 如果切片时间达到要求，在终端进行裁剪
             if (end_time-start_time)/30 > slice_shortest_time:
+                # 0代表到此行回合结束
+                df.iloc[end_time, 4] = 0
                 outputmp4_path = f"{os.path.splitext(os.path.basename(inputmp4_path))[0]}video{num_clip}slice.mp4"
                 command = ['ffmpeg', '-i', str(inputmp4_path), "-ss", f"{start_time/30:.2f}", "-t", f"{(end_time-start_time)/30:.2f}", "-c:v", "libx264", "-c:a", "aac", str(outputmp4_path)]
                 result = subprocess.run(command, capture_output=True, text=True)
@@ -68,6 +68,7 @@ def time_to_end(start_time):
                 else:
                     print(f"Error executing command: {result.stderr}")
             else:
+                df.iloc[start_time, 4] = np.nan
                 print(f"第{num_clip}个切片时间太短，不保存")
             return end_time, exist_end
         else:
@@ -158,7 +159,7 @@ if __name__ == "__main__":
     parser.add_argument("--input_csv_path", type=str, default='test.csv', help="需处理表格的路径")
     parser.add_argument("--output_csv_path", type=str, default='testnew.csv', help="输出表格的路径")
     parser.add_argument("--inputmp4_path", type=str, default='test.mp4', help="输入视频路径")
-    parser.add_argument("--slice_shortest_time", type=float, default=3.3, help="切片最短时间,单位秒")
+    parser.add_argument("--slice_shortest_time", type=float, default=3.4, help="切片最短时间,单位秒")
     parser.add_argument("--x_constraint_ratio", type=float, default=0.29, help="插帧范围限制系数，避免其他场球干扰")
     args = parser.parse_args()
     inputmp4_path = args.inputmp4_path
