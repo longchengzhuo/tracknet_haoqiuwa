@@ -15,7 +15,9 @@ def time_to_start(end_time):
     for i in range(end_time, len(df) - 19):
         # 如果到达末尾，直接返回
         if i + 20 == len(df):
-            return start_time
+            start_time = end_time
+            exist_start = 0
+            return start_time, exist_start
         # 计算当前位置及其后20行的第二列总和
         sum_col2 = df.iloc[i:i + 20, 1].sum()
         # 如果总和大于等于9
@@ -156,9 +158,9 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="找出每一回合")
-    parser.add_argument("--input_csv_path", type=str, default='test.csv', help="需处理表格的路径")
-    parser.add_argument("--output_csv_path", type=str, default='testnew.csv', help="输出表格的路径")
-    parser.add_argument("--inputmp4_path", type=str, default='test.mp4', help="输入视频路径")
+    parser.add_argument("--input_csv_path", type=str, default='skcourt1_ball.csv', help="需处理表格的路径")
+    parser.add_argument("--output_csv_path", type=str, default='skcourt1_ballnew.csv', help="输出表格的路径")
+    parser.add_argument("--inputmp4_path", type=str, default='skcourt1_pred7.0.mp4', help="输入视频路径")
     parser.add_argument("--slice_shortest_time", type=float, default=3.4, help="切片最短时间,单位秒")
     parser.add_argument("--x_constraint_ratio", type=float, default=0.29, help="插帧范围限制系数，避免其他场球干扰")
     args = parser.parse_args()
