@@ -12,6 +12,10 @@ def time_to_start(end_time):
     :return: 下一回合的开始帧
     """
     global start_time, num_clip, exist_start
+    if end_time >= (len(df) - 19):
+        start_time = end_time
+        exist_start = 0
+        return start_time, exist_start
     for i in range(end_time, len(df) - 19):
         # 如果到达末尾，直接返回
         if i + 20 == len(df):
@@ -24,8 +28,11 @@ def time_to_start(end_time):
         if sum_col2 >= 9:
             # 回合序数迭代
             num_clip += 1
-            # 输出当前行前15行的第一列的数值
-            start_time = df.iloc[i - 15, 0]
+            if i < 15:
+                start_time = 0
+            else:
+                # 输出当前行前15行的第一列的数值
+                start_time = df.iloc[i - 15, 0]
             print(f"第 {num_clip} 个clip的开始帧是{start_time}")
             # 1代表此行后回合开始
             df.iloc[start_time, 4] = 1
@@ -42,6 +49,10 @@ def time_to_end(start_time):
     :return: 当前回合的结束帧
     """
     global end_time, exist_end
+    if start_time >= (len(df) - 59):
+        end_time = len(df)
+        exist_end = 0
+        return end_time, exist_end
     for i in range(start_time, len(df) - 59):
         # 如果到达末尾，直接返回
         if i + 60 == len(df):
@@ -52,8 +63,11 @@ def time_to_end(start_time):
         sum_col2 = df.iloc[i:i + 60, 1].sum()
         # 如果总和小于10
         if sum_col2 < 10:
-            # 输出当前行后30行的第一列的数值
-            end_time = df.iloc[i + 30, 0]
+            if i+30 >= len(df) - 1:
+                end_time = len(df)
+            else:
+                # 输出当前行后30行的第一列的数值
+                end_time = df.iloc[i + 30, 0]
             print(f"第 {num_clip} 个clip的结束帧是{end_time}")
             exist_end = 1
             # 如果切片时间达到要求，在终端进行裁剪
@@ -160,9 +174,9 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="找出每一回合")
-    parser.add_argument("--input_csv_path", type=str, default='skcourt1_ball.csv', help="需处理表格的路径")
-    parser.add_argument("--output_csv_path", type=str, default='skcourt1_ballnew.csv', help="输出表格的路径")
-    parser.add_argument("--inputmp4_path", type=str, default='skcourt1_pred7.0.mp4', help="输入视频路径")
+    parser.add_argument("--input_csv_path", type=str, default='skcourt2_ball.csv', help="需处理表格的路径")
+    parser.add_argument("--output_csv_path", type=str, default='skcourt2_ballnew.csv', help="输出表格的路径")
+    parser.add_argument("--inputmp4_path", type=str, default='skcourt2_pred7.mp4', help="输入视频路径")
     parser.add_argument("--slice_shortest_time", type=float, default=3.4, help="切片最短时间,单位秒")
     parser.add_argument("--x_constraint_ratio", type=float, default=0.29, help="插帧范围限制系数，避免其他场球干扰")
     args = parser.parse_args()
