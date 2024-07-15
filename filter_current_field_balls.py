@@ -61,6 +61,8 @@ def time_to_end(start_time):
                 # 0代表到此行回合结束
                 df.iloc[end_time, 4] = 0
                 outputmp4_path = f"{os.path.splitext(os.path.basename(inputmp4_path))[0]}video{num_clip}slice.mp4"
+                if os.path.isfile(outputmp4_path):
+                    os.remove(outputmp4_path)
                 command = ['ffmpeg', '-i', str(inputmp4_path), "-ss", f"{start_time/30:.2f}", "-t", f"{(end_time-start_time)/30:.2f}", "-c:v", "libx264", "-c:a", "aac", str(outputmp4_path)]
                 result = subprocess.run(command, capture_output=True, text=True)
                 # 检查命令是否成功执行
