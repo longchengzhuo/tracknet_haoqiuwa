@@ -1,7 +1,7 @@
-get_rounds.py
-siftbydis.py
-test.csv
 testkey.csv
+test.csv
+siftbydis.py
+get_rounds.py
 .idea/.gitignore
 .idea/get_badminton_rounds.iml
 .idea/misc.xml
