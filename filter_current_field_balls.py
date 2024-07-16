@@ -5,6 +5,7 @@ import os
 import cv2
 import numpy as np
 
+
 def time_to_start(end_time):
     """
     从end_time开始，找到下一个回合的开始帧
@@ -149,6 +150,44 @@ def insert_frame(insert_start_time):
                         break
 
 
+def delete_wrong_balls(delete_start_time):
+    def check_repeats(group):
+        col3_counts = group.iloc[:, 2].value_counts()
+        col4_counts = group.iloc[:, 3].value_counts()
+
+        # 找出重复次数超过5次的元素
+        col3_to_zero = col3_counts[col3_counts > 5].index.tolist()
+        col4_to_zero = col4_counts[col4_counts > 5].index.tolist()
+
+        # 将满足条件的行的第2、3、4列设置为0
+        mask = (group.iloc[:, 2].isin(col3_to_zero)) | (group.iloc[:, 3].isin(col4_to_zero))
+        group.iloc[mask, 1] = 0
+        group.iloc[mask, 2] = 0
+        group.iloc[mask, 3] = 0
+
+        return group
+
+    # 使用rolling窗口，但是由于rolling窗口不适用于非数值类型的数据，
+    # 我们需要手动实现类似的功能
+    window_size = 20
+    for i in range(delete_start_time, len(df)):
+        if i == len(df) - 21:
+            # 取出一个窗口大小的数据块
+            window_df = df.iloc[i:len(df)]
+            # 应用我们的检查函数
+            updated_window_df = check_repeats(window_df.copy())
+            # 将结果放回原DataFrame
+            df.iloc[i:len(df)] = updated_window_df
+            break
+        else:
+            # 取出一个窗口大小的数据块
+            window_df = df.iloc[i:i + window_size]
+            # 应用我们的检查函数
+            updated_window_df = check_repeats(window_df.copy())
+            # 将结果放回原DataFrame
+            df.iloc[i:i + window_size] = updated_window_df
+
+
 def main(args):
     global num_clip, end_time, start_time, exist_start, exist_end
     num_clip = 0
@@ -156,6 +195,8 @@ def main(args):
     start_time = 0
     exist_start = 0
     exist_end = 0
+    # 首先删除重复点位
+    delete_wrong_balls(0)
     # 首先对整张表插帧，0代表从开头开始插
     insert_frame(0)
     start_time, exist_start = time_to_start(end_time)
