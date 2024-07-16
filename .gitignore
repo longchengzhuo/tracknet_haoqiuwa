@@ -17,3 +17,5 @@ skcourt1_ball.csv
 skcourt2_ballnew.csv
 skcourt2_ball.csv
 skcourt2_pred7.mp4
+*.mp4
+*.csv
