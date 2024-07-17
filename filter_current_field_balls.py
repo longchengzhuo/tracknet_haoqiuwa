@@ -223,14 +223,14 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="找出每一回合")
-    parser.add_argument("--input_csv_path", type=str, default='xyscourt2_ball.csv', help="需处理表格的路径")
-    parser.add_argument("--output_csv_path", type=str, default='xyscourt2_ballnew.csv', help="输出表格的路径")
-    parser.add_argument("--inputmp4_path", type=str, default='xyscourt2_pred3.mp4', help="输入视频路径")
+    parser.add_argument("--input_csv_path", type=str, default='skcourt3_ball.csv', help="需处理表格的路径")
+    parser.add_argument("--output_csv_path", type=str, default='skcourt3_ballnew.csv', help="输出表格的路径")
+    parser.add_argument("--inputmp4_path", type=str, default='skcourt3_pred5.0.mp4', help="输入视频路径")
     parser.add_argument("--slice_shortest_time", type=float, default=3.4, help="切片最短时间,单位秒")
     parser.add_argument("--x_constraint_ratio", type=float, default=0.29, help="插帧范围限制系数，避免其他场球干扰")
     parser.add_argument("--start_window", type=int, default=20, help="滑动窗口检测开始帧")
-    parser.add_argument("--end_window", type=int, default=60, help="滑动窗口检测结束帧")
-    parser.add_argument("--delete_window", type=int, default=100, help="滑动窗口删除重复球")
+    parser.add_argument("--end_window", type=int, default=70, help="滑动窗口检测结束帧")
+    parser.add_argument("--delete_window", type=int, default=20, help="滑动窗口删除重复球")
 
     args = parser.parse_args()
     inputmp4_path = args.inputmp4_path
