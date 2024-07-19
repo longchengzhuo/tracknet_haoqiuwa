@@ -29,11 +29,11 @@ def time_to_start(end_time):
         if sum_col2 >= 9:
             # 回合序数迭代
             num_clip += 1
-            if i < 15:
+            if i < 35:
                 start_time = 0
             else:
                 # 输出当前行前15行的第一列的数值
-                start_time = df.iloc[i - 15, 0]
+                start_time = df.iloc[i - 35, 0]
             print(f"第 {num_clip} 个clip的开始帧是{start_time}")
             # 1代表此行后回合开始
             df.iloc[start_time, 4] = 1
@@ -103,7 +103,7 @@ def insert_frame(insert_start_time):
     :return: 无
     """
     # 逐渐变小阶段
-    for i in range(insert_start_time, len(df) - 16):
+    for i in range(insert_start_time, len(df) - 31):
         # 下一个片段开始信号
         next_segment_begins = 0
         # 砍两刀
@@ -111,16 +111,16 @@ def insert_frame(insert_start_time):
                     1 - x_constraint_ratio) or width * x_constraint_ratio < df.iloc[i + 1, 2] <= df.iloc[
             i, 2] < width * (1 - x_constraint_ratio)
         # 如果出现y值小于70且连续一帧内变小，则准备插帧
-        if 70 > df.iloc[i, 3] > df.iloc[i + 1, 3] > 0 and x_within_allowed_range:
+        if 130 > df.iloc[i, 3] > df.iloc[i + 1, 3] > 0 and x_within_allowed_range:
             # 最多插30帧
-            for j in range(i + 2, i + 17):
+            for j in range(i + 2, i + 32):
                 # 在连续变小之后，从第三帧开始，若碰到y值和x值为0的帧，则将其visibility置1
                 if df.iloc[j, 2] == 0 and df.iloc[j, 3] == 0:
                     df.iloc[j, 1] = 1
                     # 既然已经出现了空档期，那么在之后遇到球，则为下一个片段开始，所以将信号置为1
                     next_segment_begins = 1
                 # 有球，且下一个片段已经开始了，则结束插帧
-                elif (df.iloc[j, 2] != 0 or df.iloc[j, 3] != 0) and next_segment_begins == 1:
+                elif df.iloc[j, 3] > df.iloc[i + 1, 3]:
                     break
                 elif j == i + 12 and next_segment_begins == 0:
                     break
@@ -133,24 +133,24 @@ def insert_frame(insert_start_time):
                 1 - x_constraint_ratio) or width * x_constraint_ratio < df.iloc[i + 1, 2] <= df.iloc[
                                      i, 2] < width * (1 - x_constraint_ratio)
         # 30帧之后再往上插帧，最多插30帧
-        if i >= 15:
-            if 70 > df.iloc[i + 1, 3] > df.iloc[i, 3] > 0 and x_within_allowed_range:
-                for j in reversed(range(i - 15, i)):
+        if i >= 30:
+            if 130 > df.iloc[i + 1, 3] > df.iloc[i, 3] > 0 and x_within_allowed_range:
+                for j in reversed(range(i - 30, i)):
                     if df.iloc[j, 2] == 0 and df.iloc[j, 3] == 0:
                         df.iloc[j, 1] = 1
                         pre_segment_begins = 1
-                    elif (df.iloc[j, 2] != 0 or df.iloc[j, 3] != 0) and pre_segment_begins == 1:
+                    elif df.iloc[j, 3] > df.iloc[i, 3]:
                         break
                     elif j == i - 10 and pre_segment_begins == 0:
                         break
         # 30帧之内往上插帧，最多插到开头
         else:
-            if 70 > df.iloc[i + 1, 3] > df.iloc[i, 3] > 0 and x_within_allowed_range:
+            if 130 > df.iloc[i + 1, 3] > df.iloc[i, 3] > 0 and x_within_allowed_range:
                 for j in reversed(range(0, i)):
                     if df.iloc[j, 2] == 0 and df.iloc[j, 3] == 0:
                         df.iloc[j, 1] = 1
                         pre_segment_begins = 1
-                    elif (df.iloc[j, 2] != 0 or df.iloc[j, 3] != 0) and pre_segment_begins == 1:
+                    elif df.iloc[j, 3] > df.iloc[i, 3]:
                         break
                     elif j == i - 10 and pre_segment_begins == 0:
                         break
@@ -223,11 +223,11 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="找出每一回合")
-    parser.add_argument("--input_csv_path", type=str, default='skcourt3_ball.csv', help="需处理表格的路径")
-    parser.add_argument("--output_csv_path", type=str, default='skcourt3_ballnew.csv', help="输出表格的路径")
-    parser.add_argument("--inputmp4_path", type=str, default='skcourt3_pred5.0.mp4', help="输入视频路径")
+    parser.add_argument("--input_csv_path", type=str, default='sk7_ball.csv', help="需处理表格的路径")
+    parser.add_argument("--output_csv_path", type=str, default='sk7_ballnew.csv', help="输出表格的路径")
+    parser.add_argument("--inputmp4_path", type=str, default='sk7_pred3.mp4', help="输入视频路径")
     parser.add_argument("--slice_shortest_time", type=float, default=3.4, help="切片最短时间,单位秒")
-    parser.add_argument("--x_constraint_ratio", type=float, default=0.29, help="插帧范围限制系数，避免其他场球干扰")
+    parser.add_argument("--x_constraint_ratio", type=float, default=0.18, help="插帧范围限制系数，避免其他场球干扰")
     parser.add_argument("--start_window", type=int, default=20, help="滑动窗口检测开始帧")
     parser.add_argument("--end_window", type=int, default=70, help="滑动窗口检测结束帧")
     parser.add_argument("--delete_window", type=int, default=20, help="滑动窗口删除重复球")
@@ -251,7 +251,6 @@ if __name__ == "__main__":
         print(f"The width of the video is: {width} pixels")
     # 释放VideoCapture资源
     cap.release()
-
     df = pd.read_csv(args.input_csv_path)
     # 在原csv中增加第五列
     df['开始和结束'] = None
