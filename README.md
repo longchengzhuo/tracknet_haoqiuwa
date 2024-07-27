@@ -1,3 +1,4 @@
+### git clone -b master <repository-url>
 start_and_end_frame_list:含有开始帧数和结束帧数的list
 
 格式类似于:[[155, 273], [435, 671], [712, 818], [899, 1090]]
