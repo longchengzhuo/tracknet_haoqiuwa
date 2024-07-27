@@ -99,4 +99,4 @@ if __name__ == "__main__":
     model_file = args.model_file
     model, conv_kernel, num_frame = load_model(model_file)                                                              # 加载模型
 
-    inferred_results, width_of_raw_mp4, frame_count = start_infer(args, inferred_results, cap, w, h, frame_count, model, conv_kernel, num_frame)
+    inferred_results, frame_count = start_infer(args, inferred_results, cap, w, h, frame_count, model, conv_kernel, num_frame)
