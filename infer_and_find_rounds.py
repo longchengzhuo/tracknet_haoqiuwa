@@ -40,6 +40,8 @@ def infer_and_find_rounds(args, video_file, model, conv_kernel, num_frame):
         yield start_and_end_frame_list
 
 if __name__ == "__main__":
+    start_time0 = time.time()
+    start_time = time.time()
     video_file = "/ssd2/cz/TrackNetV3/bt_for_test/bt2.mp4"                                                              # 输入视频地址
 
     parser = argparse.ArgumentParser()                                                                                  # 以下内容应放入配置中心------------------
@@ -62,4 +64,10 @@ if __name__ == "__main__":
 
     for i in start_and_end_frame_list:
         print("start_and_end_frame_list", i)                                                                            # start_and_end_frame_list:含有开始帧数和结束帧数
-
+        end_time = time.time()
+        execution_time = end_time - start_time
+        start_time = time.time()
+        print(f"代码每次执行耗时: {execution_time:.6f} 秒")
+    end_time2 = time.time()
+    execution_time = end_time2 - start_time0
+    print(f"代码总执行耗时: {execution_time:.6f} 秒")

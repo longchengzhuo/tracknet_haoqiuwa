@@ -1,5 +1,5 @@
 import numpy as np
-
+import time
 def time_to_start(df, end_time, start_window, num_clip):
     """
     从end_time开始，找到下一个回合的开始帧
@@ -178,10 +178,18 @@ def find_rounds(args, df, width, start_and_end_frame_list, one_no_start_zero_no_
     delete_window = args.delete_window
     num_clip = 0
 
+    start_time2 = time.time()
     # 首先删除重复点位
     df = delete_wrong_balls(df, last_clip_end_frame, delete_window)
+    end_time2 = time.time()
+    execution_time = end_time2 - start_time2
+    print(f"每次删除重复点位耗时: {execution_time:.6f} 秒")
+
     # 首先对整张表插帧，0代表从开头开始插
     df = insert_frame(df, last_clip_end_frame, width, x_constraint_ratio)
+    end_time3 = time.time()
+    execution_time = end_time3 - end_time2
+    print(f"每次插帧耗时: {execution_time:.6f} 秒")
 
     if one_no_start_zero_no_end == 1:
         end_time = star_or_end_time
