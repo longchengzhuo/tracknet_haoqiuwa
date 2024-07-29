@@ -23,16 +23,21 @@ def infer_and_find_rounds(args, video_file, model, conv_kernel, num_frame):
     one_no_start_zero_no_end = 1                                                                                        # 没有找到开始就是1,没有找到结束就是0
     star_or_end_time = 0
     frame_count = 0                                                                                                     # 帧数
-
+    num_of_infer = 0
+    last_clip_end_frame = 0
     while len(inferred_results) < cap.get(cv2.CAP_PROP_FRAME_COUNT):
+        num_of_infer += 1
         inferred_results, frame_count = start_infer(args, inferred_results, cap, w, h, frame_count, model, conv_kernel, num_frame)
-        start_and_end_frame_list = []                                                                                   # 储存开始帧和结束帧
+        start_and_end_frame_list = []
         start_and_end_frame_list, star_or_end_time, one_no_start_zero_no_end = find_rounds(args, inferred_results, w,
                                                                                            start_and_end_frame_list,
                                                                                            one_no_start_zero_no_end,
-                                                                                           star_or_end_time)
+                                                                                           star_or_end_time, last_clip_end_frame)
+        if start_and_end_frame_list == []:
+            last_clip_end_frame = num_of_infer * 600
+        else:
+            last_clip_end_frame = start_and_end_frame_list[-1][1]
         yield start_and_end_frame_list
-
 
 if __name__ == "__main__":
     video_file = "/ssd2/cz/TrackNetV3/bt_for_test/bt2.mp4"                                                              # 输入视频地址
@@ -54,5 +59,7 @@ if __name__ == "__main__":
     model_file = args.model_file                                                                                        # 装载模型权重
     model, conv_kernel, num_frame = load_model(model_file)
     start_and_end_frame_list = infer_and_find_rounds(args, video_file, model, conv_kernel, num_frame)                   # 开始推理,每推理600帧,就执行找回合任务
+
     for i in start_and_end_frame_list:
-        print("start_and_end_frame_list", i)                                                                            # start_and_end_frame_list:含有开始帧数和结束帧数的列表格式类似于:[[155, 273], [435, 671], [712, 818], [899, 1090]]
+        print("start_and_end_frame_list", i)                                                                            # start_and_end_frame_list:含有开始帧数和结束帧数
+

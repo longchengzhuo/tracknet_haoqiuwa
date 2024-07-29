@@ -141,7 +141,7 @@ def delete_wrong_balls(df, delete_start_time, delete_window):
 
     def check_wrong_ball(group):
         # 除了中间两个，其他位置都没有球，则整个窗口标记为需要清空
-        balls_counts = group.iloc[:8, 1].sum() + group.iloc[13:, 1].sum()
+        balls_counts = group.iloc[:7, 1].sum() + group.iloc[13:, 1].sum()
         if balls_counts == 0:
             group.iloc[:, 5] = 1
         return group
@@ -154,8 +154,8 @@ def delete_wrong_balls(df, delete_start_time, delete_window):
         else:
             window_df = df.iloc[i:i + delete_window]
             df.iloc[i:i + delete_window] = check_repeats(window_df.copy())
-    repeats_mask = df.iloc[:, 5] == 1
-    df.iloc[repeats_mask, 1:4] = 0
+    repeats_mask = df.iloc[delete_start_time:, 5] == 1
+    df.iloc[delete_start_time:, :].iloc[repeats_mask, 1:4] = 0
 
     for i in range(delete_start_time, len(df)):
         if i == len(df) - delete_window:
@@ -165,12 +165,12 @@ def delete_wrong_balls(df, delete_start_time, delete_window):
         else:
             window_df = df.iloc[i:i + delete_window]
             df.iloc[i:i + delete_window] = check_wrong_ball(window_df.copy())
-    repeats_mask = df.iloc[:, 5] == 1
-    df.iloc[repeats_mask, 1:4] = 0
+    repeats_mask = df.iloc[delete_start_time:, 5] == 1
+    df.iloc[delete_start_time:, :].iloc[repeats_mask, 1:4] = 0
 
     return df
 
-def find_rounds(args, df, width, start_and_end_frame_list, one_no_start_zero_no_end, star_or_end_time):
+def find_rounds(args, df, width, start_and_end_frame_list, one_no_start_zero_no_end, star_or_end_time, last_clip_end_frame):
     slice_shortest_time = args.slice_shortest_time
     x_constraint_ratio = args.x_constraint_ratio
     start_window = args.start_window
@@ -179,9 +179,9 @@ def find_rounds(args, df, width, start_and_end_frame_list, one_no_start_zero_no_
     num_clip = 0
 
     # 首先删除重复点位
-    df = delete_wrong_balls(df, 0, delete_window)
+    df = delete_wrong_balls(df, last_clip_end_frame, delete_window)
     # 首先对整张表插帧，0代表从开头开始插
-    df = insert_frame(df, 0, width, x_constraint_ratio)
+    df = insert_frame(df, last_clip_end_frame, width, x_constraint_ratio)
 
     if one_no_start_zero_no_end == 1:
         end_time = star_or_end_time
