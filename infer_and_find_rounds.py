@@ -20,13 +20,13 @@ def infer_and_find_rounds(args, video_file, model, conv_kernel, num_frame):
     w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-    start_and_end_frame_list = []                                                                                       # 储存开始帧和结束帧
     one_no_start_zero_no_end = 1                                                                                        # 没有找到开始就是1,没有找到结束就是0
     star_or_end_time = 0
     frame_count = 0                                                                                                     # 帧数
 
     while len(inferred_results) < cap.get(cv2.CAP_PROP_FRAME_COUNT):
         inferred_results, frame_count = start_infer(args, inferred_results, cap, w, h, frame_count, model, conv_kernel, num_frame)
+        start_and_end_frame_list = []                                                                                   # 储存开始帧和结束帧
         start_and_end_frame_list, star_or_end_time, one_no_start_zero_no_end = find_rounds(args, inferred_results, w,
                                                                                            start_and_end_frame_list,
                                                                                            one_no_start_zero_no_end,
