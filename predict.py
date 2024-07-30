@@ -2,27 +2,7 @@ import argparse
 from utils import *
 
 
-def get_model(num_frame):
-    from model import TrackNetV3 as TrackNet
-    model = TrackNet(in_dim=num_frame * 3, out_dim=num_frame)
 
-    return model
-
-def load_model(model_file):
-    checkpoint = torch.load(model_file)
-    param_dict = checkpoint['param_dict']
-    num_frame = param_dict['num_frame']
-
-    model = get_model(num_frame)
-    model.load_state_dict(checkpoint['model_state_dict'])
-    model = model.cuda()
-    model.eval()
-
-    conv_kernel = torch.nn.Conv2d(3, 3, kernel_size=3, stride=1, padding=1, groups=3, bias=False)
-    conv_kernel.weight.data.fill_(1)
-    conv_kernel = conv_kernel.cuda()
-
-    return model, conv_kernel, num_frame
 
 def start_infer(args, inferred_results, cap, w, h, frame_count, model, conv_kernel, num_frame):
     need_to_cut = args.need_to_cut                                                                                      # 获取参数
